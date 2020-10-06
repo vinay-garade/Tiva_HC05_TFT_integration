@@ -1,0 +1,53 @@
+ #include <SoftwareSerial.h>
+// Include application, user and local libraries
+#include "SPI.h"
+#include "TFT_22_ILI9225.h"
+
+#define TFT_RST 8
+#define TFT_RS  9
+#define TFT_CS  10  // SS
+#define TFT_SDI 11  // MOSI
+#define TFT_CLK 13  // SCK
+#define TFT_LED 3   // 0 if wired to +5V directly
+
+#define TFT_BRIGHTNESS 200 // Initial brightness of TFT backlight (optional)
+SoftwareSerial mySerial(6,5);
+// Use hardware SPI (faster - on Uno: 13-SCK, 12-MISO, 11-MOSI)
+TFT_22_ILI9225 tft = TFT_22_ILI9225(TFT_RST, TFT_RS, TFT_CS, TFT_LED, TFT_BRIGHTNESS);
+// Variables and constants
+String str = "";
+
+/*
+ * Tux black/white image in 180x220 converted using Ardafruit bitmap converter
+ * https://github.com/ehubin/Adafruit-GFX-Library/tree/master/Img2Code
+ */
+// Setup
+void setup() {
+  tft.begin();
+  tft.setFont(Terminal6x8);
+  tft.clear();
+  Serial.begin(9600);
+  mySerial.begin(9600);
+}
+
+// Loop
+void loop() {
+  int x,y,xy;
+  y=20;
+  x=0;
+  tft.drawRectangle(0, 0, tft.maxX() - 1, tft.maxY() - 1, COLOR_WHITE);
+  tft.setFont(Terminal6x8);
+  String strr = "bonsoir damola cest moi vinay from paris comment allez vous monsieur ";
+  y=tft.drawText(1,y,strr, COLOR_GREEN);
+  while(mySerial.available() > 0){
+    char c = mySerial.read();
+   Serial.print(y);
+    if(c != '\r' && c != '\n')
+      str = str + c;
+
+      delay(1);
+xy=tft.drawText(1,y,str,COLOR_RED);
+  }
+   str = "";
+}
+
